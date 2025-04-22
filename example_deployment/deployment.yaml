@@ -27,3 +27,5 @@ spec:
       - name: data-volume
         persistentVolumeClaim:
           claimName: data-pvc
+      imagePullSecrets:
+      - name: quay-sec
