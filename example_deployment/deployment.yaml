@@ -19,10 +19,10 @@ spec:
         - containerPort: 5123
         env:
         - name: UPLOAD_DATA
-          value: "/data"
+          value: "/app/demo-data"
         volumeMounts:
         - name: data-volume
-          mountPath: /data
+          mountPath: /app/demo-data
       volumes:
       - name: data-volume
         persistentVolumeClaim:
