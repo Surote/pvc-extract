@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: py-upload-download-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: py-upload-download-app
+  template:
+    metadata:
+      labels:
+        app: py-upload-download-app
+    spec:
+      containers:
+      - name: py-upload-download-app
+        image: quay.io/rh_ee_swongpai/py-upload-download:f01658f09c18fdba96228b14cb1108231f564da2
+        ports:
+        - containerPort: 5123
+        env:
+        - name: UPLOAD_DATA
+          value: "/data"
+        volumeMounts:
+        - name: data-volume
+          mountPath: /data
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: data-pvc
