@@ -1,0 +1,1 @@
+Manual create PVC, and image pull secret
