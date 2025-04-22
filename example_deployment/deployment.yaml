@@ -20,6 +20,8 @@ spec:
         env:
         - name: UPLOAD_FOLDER
           value: "/app/demo-data"
+        - name: SAVEPASS
+          value: "YOURPASSWORD"
         volumeMounts:
         - name: data-volume
           mountPath: /app/demo-data

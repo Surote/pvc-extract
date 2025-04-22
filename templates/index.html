@@ -29,5 +29,9 @@
         <li><a href="{{ url_for('download_file', filename=file) }}">{{ file }}</a></li>
     {% endfor %}
     </ul>
+
+    <form action="{{ url_for('logout') }}" method="post">
+        <input type="submit" value="Logout">
+    </form>
 </body>
 </html>
