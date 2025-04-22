@@ -14,4 +14,4 @@ RUN pip install -r requirements.txt
 EXPOSE 5123
 
 # Run the application with Gunicorn
-CMD ["gunicorn", "-w", "3", "-b", "0.0.0.0:5123","--log-level", "debug", "app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:5123","--log-level", "debug", "app:app"]
