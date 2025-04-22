@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: py-upload-download-app
-        image: quay.io/rh_ee_swongpai/py-upload-download:3970f3b5d9f5032468e2fabdb86d5cebdec48f8f
+        image: quay.io/rh_ee_swongpai/py-upload-download:e05ccc78a9ceb6301ef9937e596355aa274cc250
         ports:
         - containerPort: 5123
         env:
