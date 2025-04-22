@@ -31,7 +31,7 @@ jobs:
         id: quay-build-push
         with:
           push: true
-          tags: quay.io/${{secrets.QUAY_USER}}/py-upload-download:${{ github.sha }}
+          tags: quay.io/${{secrets.QUAY_REPO}}/py-upload-download:${{ github.sha }}
 
       # Install Cosign
       - uses: sigstore/cosign-installer@main

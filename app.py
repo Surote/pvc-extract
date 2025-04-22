@@ -8,6 +8,7 @@ app.secret_key = 'supersecretkey'  # Needed for flashing messages
 
 # Ensure the upload directory exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 @app.route('/')
 def index():
     files = os.listdir(app.config['UPLOAD_FOLDER'])
