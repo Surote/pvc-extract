@@ -6,7 +6,7 @@ UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'data')  # Default to 'data' if env v
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = 'supersecretkey'  # Needed for flashing messages
 
-# Ensure the upload directory exists
+# Ensure the upload directory exists 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/')

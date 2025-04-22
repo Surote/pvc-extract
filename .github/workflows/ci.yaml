@@ -38,13 +38,13 @@ jobs:
 
       - name: Sign image with a key
         run: |
-          cosign sign --yes --key env://COSIGN_PRIVATE_KEY quay.io/${{secrets.QUAY_USER}}/py-upload-download:${{ github.sha }}
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY quay.io/${{secrets.QUAY_REPO}}/py-upload-download:${{ github.sha }}
         env:
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
       - name: Verify image with a key
         run: |
-          cosign verify --key env://COSIGN_PUBLIC_KEY quay.io/${{secrets.QUAY_USER}}/py-upload-download:${{ github.sha }}
+          cosign verify --key env://COSIGN_PUBLIC_KEY quay.io/${{secrets.QUAY_REPO}}/py-upload-download:${{ github.sha }}
         env:
           COSIGN_PUBLIC_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
