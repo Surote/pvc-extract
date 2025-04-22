@@ -18,7 +18,7 @@ spec:
         ports:
         - containerPort: 5123
         env:
-        - name: UPLOAD_DATA
+        - name: UPLOAD_FOLDER
           value: "/app/demo-data"
         volumeMounts:
         - name: data-volume
