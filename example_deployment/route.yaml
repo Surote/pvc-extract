@@ -7,6 +7,6 @@ spec:
     kind: Service
     name: upload-download-svc
   port:
-    targetPort: 80
+    targetPort: 5123
   tls:
     termination: edge # Optional: specify TLS termination
