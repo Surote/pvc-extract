@@ -1,0 +1,12 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: upload-download-route
+spec:
+  to:
+    kind: Service
+    name: upload-download-svc
+  port:
+    targetPort: 80
+  tls:
+    termination: edge # Optional: specify TLS termination

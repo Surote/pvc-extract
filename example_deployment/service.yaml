@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: upload-download-svc
+spec:
+  selector:
+    app: py-upload-download-app
+  ports:
+    - protocol: TCP
+      port: 80        # The port that the service will expose within the cluster
+      targetPort: 5123 # The port on which your application is running inside the container
+  type: ClusterIP      # Default type, only accessible within the cluster
