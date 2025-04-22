@@ -2,7 +2,7 @@ from flask import Flask, request, send_from_directory, render_template, redirect
 import os
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'data'
+UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'data')  # Default to 'data' if env var not set
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = 'supersecretkey'  # Needed for flashing messages
 
@@ -36,3 +36,4 @@ def download_file(filename):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5123)
+
