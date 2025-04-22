@@ -4,6 +4,7 @@ on:
     paths-ignore:
       - ".github/**"
       - "README.md"
+      - "example_deployment/**"
     branches:
       - "*"
 
