@@ -2,7 +2,6 @@ from flask import Flask, request, send_from_directory, render_template, redirect
 from flask_bcrypt import Bcrypt
 from functools import wraps
 import os
-import tempfile
 import subprocess
 
 app = Flask(__name__)
@@ -10,7 +9,6 @@ bcrypt = Bcrypt(app)
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'data')
 SAVE_PASS = os.getenv('SAVEPASS')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.secret_key = 'supersecretkey'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def login_required(f):

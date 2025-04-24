@@ -1,0 +1,61 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: py-upload-download-app
+  namespace: openshift-compliance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: py-upload-download-app
+  template:
+    metadata:
+      labels:
+        app: py-upload-download-app
+    spec:
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: ocp4-cis
+        - name: worker-volume
+          persistentVolumeClaim:
+            claimName: ocp4-cis-node-worker
+        - name: master-volume
+          persistentVolumeClaim:
+            claimName: ocp4-cis-node-master
+      containers:
+        - resources: {}
+          terminationMessagePath: /dev/termination-log
+          name: py-upload-download-app
+          env:
+            - name: UPLOAD_FOLDER
+              value: /app/compliance/
+            - name: SAVEPASS
+              value: YOURPASSWORD
+          ports:
+            - containerPort: 5123
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: data-volume
+              mountPath: /app/compliance/ocp
+            - name: worker-volume
+              mountPath: /app/compliance/worker
+            - name: master-volume
+              mountPath: /app/compliance/master
+          terminationMessagePolicy: File
+          image: 'quay.io/rh_ee_swongpai/py-upload-download:fdff9a5e835713a3702887de7ae9f1525b9abc84'
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      imagePullSecrets:
+        - name: quay-sec
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
