@@ -1,6 +1,12 @@
 # Use the official Python image unauthen
 FROM registry.access.redhat.com/ubi9/python-312@sha256:0d8c7c7490a2399292e5dd02014e768d53523bab0abb86328388820adf6f5650
 
+
+# Install OpenSCAP tools
+USER root
+
+RUN yum install -y openscap-scanner \
+    && yum clean all
 # Set the working directory in the container
 WORKDIR /app
 
