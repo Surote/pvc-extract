@@ -1,5 +1,4 @@
-from flask import Flask, request, send_from_directory, render_template, redirect, url_for, flash, session
-from flask import Flask, request, send_from_directory, render_template, redirect, url_for, flash, session, send_file
+from flask import Flask, request, send_from_directory, send_file, render_template, redirect, url_for, flash, session
 from flask_bcrypt import Bcrypt
 from functools import wraps
 import os
@@ -93,14 +92,11 @@ def download_file(filepath):
                 html_path
             ], check=True)
 
-            return_value = send_file(
+            return send_file(
                 html_path,
                 as_attachment=True,
                 download_name=filename.replace('.xml.bzip2', '.html')
             )
-
-            os.unlink(html_path)
-            return return_value
 
         except subprocess.CalledProcessError as e:
             flash(f"Error converting file: {str(e)}")
@@ -132,7 +128,6 @@ def logout():
     session.pop('logged_in', None)
     flash('Logged out successfully')
     return redirect(url_for('login'))
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5123)
