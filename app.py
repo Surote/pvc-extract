@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory, render_template, redirect, url_for, flash, session
+from flask import Flask, request, send_from_directory, render_template, redirect, url_for, flash, session, jsonify
 from flask_bcrypt import Bcrypt
 from functools import wraps
 import os
@@ -100,6 +100,17 @@ def logout():
     session.pop('logged_in', None)
     flash('Logged out successfully')
     return redirect(url_for('login'))
+@app.route('/delete/<path:filepath>', methods=['POST'])
+@login_required
+def delete_file(filepath):
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filepath)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        flash("File deleted successfully")
+    else:
+        flash("File not found")
+    directory = os.path.dirname(filepath)
+    return redirect(url_for('index', subpath=directory))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5123)

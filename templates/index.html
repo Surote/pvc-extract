@@ -49,10 +49,12 @@
                 <span>📄</span>
                 <a href="{{ url_for('download_file', filepath=file.path) }}">{{ file.name }}</a>
             {% endif %}
+            <form action="{{ url_for('delete_file', filepath=file.path) }}" method="post" style="display:inline;">
+                <input type="submit" value="Delete">
+            </form>
         </li>
     {% endfor %}
     </ul>
-
     <form action="{{ url_for('logout') }}" method="post">
         <input type="submit" value="Logout">
     </form>
