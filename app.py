@@ -91,15 +91,11 @@ def download_file(filepath):
                 full_path,
                 html_path
             ], check=True)
-
-            with open(html_path, 'rb') as f:
-                html_data = f.read()
-
+            # Send the generated HTML file
             return send_file(
-                tempfile.NamedTemporaryFile(suffix='.html', delete=False, mode='wb', buffering=0, newline=None),
+                html_path,
                 as_attachment=True,
-                download_name=filename.replace('.xml.bzip2', '.html'),
-                data=html_data
+                download_name=filename.replace('.xml.bzip2', '.html')
             )
 
         except subprocess.CalledProcessError as e:
@@ -108,6 +104,10 @@ def download_file(filepath):
         except Exception as e:
             flash(f"Unexpected error: {str(e)}")
             return redirect(url_for('index'))
+        finally:
+            # Clean up the temporary file
+            if os.path.exists(html_path):
+                os.remove(html_path)
 
     return send_from_directory(
         os.path.join(app.config['UPLOAD_FOLDER'], directory),
