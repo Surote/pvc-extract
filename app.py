@@ -1,7 +1,10 @@
 from flask import Flask, request, send_from_directory, render_template, redirect, url_for, flash, session
+from flask import Flask, request, send_from_directory, render_template, redirect, url_for, flash, session, send_file
 from flask_bcrypt import Bcrypt
 from functools import wraps
 import os
+import subprocess
+import tempfile
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -77,12 +80,40 @@ def upload_file():
 def download_file(filepath):
     directory = os.path.dirname(filepath)
     filename = os.path.basename(filepath)
+    full_path = os.path.join(app.config['UPLOAD_FOLDER'], directory, filename)
+
+    if filename.endswith('.xml.bzip2'):
+        try:
+            with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as temp_html:
+                html_path = temp_html.name
+
+            subprocess.run([
+                'oscap', 'xccdf', 'generate', 'report',
+                html_path,
+                full_path
+            ], check=True)
+
+            return_value = send_file(
+                html_path,
+                as_attachment=True,
+                download_name=filename.replace('.xml.bzip2', '.html')
+            )
+
+            os.unlink(html_path)
+            return return_value
+
+        except subprocess.CalledProcessError as e:
+            flash(f"Error converting file: {str(e)}")
+            return redirect(url_for('index'))
+        except Exception as e:
+            flash(f"Unexpected error: {str(e)}")
+            return redirect(url_for('index'))
+
     return send_from_directory(
         os.path.join(app.config['UPLOAD_FOLDER'], directory),
         filename,
         as_attachment=True
     )
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
