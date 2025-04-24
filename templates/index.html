@@ -52,6 +52,11 @@
             <form action="{{ url_for('delete_file', filepath=file.path) }}" method="post" style="display:inline;">
                 <input type="submit" value="Delete">
             </form>
+            {% if not file.is_dir and file.name.endswith('.bzip2') %}
+                <form action="{{ url_for('convert_to_html', filepath=file.path) }}" method="post" style="display:inline;">
+                    <input type="submit" value="Convert">
+                </form>
+            {% endif %}
         </li>
     {% endfor %}
     </ul>

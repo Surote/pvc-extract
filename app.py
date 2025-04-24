@@ -2,6 +2,8 @@ from flask import Flask, request, send_from_directory, render_template, redirect
 from flask_bcrypt import Bcrypt
 from functools import wraps
 import os
+import tempfile
+import subprocess
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -100,6 +102,7 @@ def logout():
     session.pop('logged_in', None)
     flash('Logged out successfully')
     return redirect(url_for('login'))
+
 @app.route('/delete/<path:filepath>', methods=['POST'])
 @login_required
 def delete_file(filepath):
@@ -107,6 +110,23 @@ def delete_file(filepath):
     if os.path.exists(file_path):
         os.remove(file_path)
         flash("File deleted successfully")
+    else:
+        flash("File not found")
+    directory = os.path.dirname(filepath)
+    return redirect(url_for('index', subpath=directory))
+
+@app.route('/convert/<path:filepath>', methods=['POST'])
+@login_required
+def convert_to_html(filepath):
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filepath)
+    if os.path.exists(file_path):
+        html_file = f"{file_path}.html"
+        try:
+            subprocess.run(['oscap', 'xccdf', 'generate', 'report', file_path],
+                           check=True, stdout=open(html_file, 'w'))
+            flash("File converted successfully")
+        except subprocess.CalledProcessError:
+            flash("Error in converting the file")
     else:
         flash("File not found")
     directory = os.path.dirname(filepath)
