@@ -1,7 +1,9 @@
 from flask import Flask, request, send_from_directory, render_template, redirect, url_for, flash, session
+from flask import Flask, request, send_from_directory, render_template, redirect, url_for, flash, session, send_file
 from flask_bcrypt import Bcrypt
 from functools import wraps
 import os
+import subprocess
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -80,6 +82,7 @@ def download_file(filepath):
     full_path = os.path.join(app.config['UPLOAD_FOLDER'], directory, filename)
 
     if filename.endswith('.xml.bzip2'):
+        import tempfile
         try:
             with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as temp_html:
                 html_path = temp_html.name
@@ -111,6 +114,7 @@ def download_file(filepath):
         filename,
         as_attachment=True
     )
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
