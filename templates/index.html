@@ -3,30 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Upload and Download</title>
+    <title>File Manager</title>
+    <style>
+        .folder { font-weight: bold; }
+        .breadcrumb { margin-bottom: 20px; }
+        .breadcrumb a { margin: 0 5px; }
+    </style>
 </head>
 <body>
-    <h1>File Upload and Download</h1>
+    <h1>File Manager</h1>
 
-    <h2>Upload a File</h2>
+    <!-- Breadcrumb navigation -->
+    <div class="breadcrumb">
+        <a href="{{ url_for('index') }}">Home</a> /
+        {% for crumb in breadcrumbs %}
+            <a href="{{ url_for('index', subpath=crumb.path) }}">{{ crumb.name }}</a> /
+        {% endfor %}
+    </div>
+
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <ul>
+        <ul class="messages">
         {% for message in messages %}
           <li>{{ message }}</li>
         {% endfor %}
         </ul>
       {% endif %}
     {% endwith %}
+
+    <h2>Upload a File</h2>
     <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="current_path" value="{{ current_path }}">
         <input type="file" name="file">
         <input type="submit" value="Upload">
     </form>
 
-    <h2>Available Files</h2>
+    <h2>Files and Folders</h2>
     <ul>
     {% for file in files %}
-        <li><a href="{{ url_for('download_file', filename=file) }}">{{ file }}</a></li>
+        <li>
+            {% if file.is_dir %}
+                <span class="folder">📁</span>
+                <a href="{{ url_for('index', subpath=file.path) }}">{{ file.name }}/</a>
+            {% else %}
+                <span>📄</span>
+                <a href="{{ url_for('download_file', filepath=file.path) }}">{{ file.name }}</a>
+            {% endif %}
+        </li>
     {% endfor %}
     </ul>
 

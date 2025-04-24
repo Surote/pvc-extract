@@ -20,32 +20,68 @@ def login_required(f):
     return decorated_function
 
 @app.route('/')
+@app.route('/<path:subpath>')
 @login_required
-def index():
-    files = os.listdir(app.config['UPLOAD_FOLDER'])
-    return render_template('index.html', files=files)
+def index(subpath=''):
+    current_path = os.path.join(app.config['UPLOAD_FOLDER'], subpath)
+    if not os.path.exists(current_path):
+        flash("Directory not found")
+        return redirect(url_for('index'))
+    
+    files = []
+    for item in os.listdir(current_path):
+        full_path = os.path.join(current_path, item)
+        is_dir = os.path.isdir(full_path)
+        rel_path = os.path.join(subpath, item) if subpath else item
+        files.append({
+            'name': item,
+            'is_dir': is_dir,
+            'path': rel_path
+        })
+
+    breadcrumbs = []
+    if subpath:
+        parts = subpath.split('/')
+        current = ''
+        for part in parts:
+            current = os.path.join(current, part)
+            breadcrumbs.append({'name': part, 'path': current})
+
+    return render_template('index.html',
+                         files=files,
+                         current_path=subpath,
+                         breadcrumbs=breadcrumbs)
 
 @app.route('/upload', methods=['POST'])
 @login_required
 def upload_file():
+    current_path = request.form.get('current_path', '')
+
     if 'file' not in request.files:
         flash("No file part")
-        return redirect(url_for('index'))
-    
+        return redirect(url_for('index', subpath=current_path))
+
     file = request.files['file']
     if file.filename == '':
         flash("No selected file")
-        return redirect(url_for('index'))
-    
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-    file.save(file_path)
-    flash("File uploaded successfully")
-    return redirect(url_for('index'))
+        return redirect(url_for('index', subpath=current_path))
 
-@app.route('/download/<filename>', methods=['GET'])
+    upload_path = os.path.join(app.config['UPLOAD_FOLDER'], current_path, file.filename)
+    os.makedirs(os.path.dirname(upload_path), exist_ok=True)
+    file.save(upload_path)
+    flash("File uploaded successfully")
+    return redirect(url_for('index', subpath=current_path))
+
+@app.route('/download/<path:filepath>')
 @login_required
-def download_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+def download_file(filepath):
+    directory = os.path.dirname(filepath)
+    filename = os.path.basename(filepath)
+    return send_from_directory(
+        os.path.join(app.config['UPLOAD_FOLDER'], directory),
+        filename,
+        as_attachment=True
+    )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -58,7 +94,7 @@ def login():
             flash('Invalid credentials')
     return render_template('login.html')
 
-@app.route('/logout',methods=['POST'])
+@app.route('/logout', methods=['POST'])
 @login_required
 def logout():
     session.pop('logged_in', None)
@@ -67,4 +103,3 @@ def logout():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5123)
-
