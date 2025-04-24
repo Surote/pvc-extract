@@ -26,10 +26,9 @@ jobs:
         id: docker_meta
         run: |
           if [[ ${{ github.ref_name }} == feature* ]]; then
-            echo "DOCKER_TAG=${{ github.sha }}-feature"
+            echo "DOCKER_TAG=${{ github.sha }}-feature" >> $GITHUB_ENV
           else
-            echo "DOCKER_TAG=${{ github.sha }}"
-          fi
+            echo "DOCKER_TAG=${{ github.sha }}" >> $GITHUB_ENV
       - name: Login to QUAY
         uses: docker/login-action@v2
         with:
