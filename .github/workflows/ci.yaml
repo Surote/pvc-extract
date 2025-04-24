@@ -6,7 +6,8 @@ on:
       - "README.md"
       - "example_deployment/**"
     branches:
-      - "*"
+      - "main"
+      - "feature/**"
 
 jobs:
   build-push:
