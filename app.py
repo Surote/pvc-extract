@@ -2,6 +2,7 @@ from flask import Flask, request, send_from_directory, send_file, render_templat
 from flask_bcrypt import Bcrypt
 from functools import wraps
 import os
+import tempfile
 import subprocess
 
 app = Flask(__name__)
@@ -81,7 +82,6 @@ def download_file(filepath):
     full_path = os.path.join(app.config['UPLOAD_FOLDER'], directory, filename)
 
     if filename.endswith('.xml.bzip2'):
-        import tempfile
         try:
             with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as temp_html:
                 html_path = temp_html.name
@@ -92,10 +92,14 @@ def download_file(filepath):
                 html_path
             ], check=True)
 
+            with open(html_path, 'rb') as f:
+                html_data = f.read()
+
             return send_file(
-                html_path,
+                tempfile.NamedTemporaryFile(suffix='.html', delete=False, mode='wb', buffering=0, newline=None),
                 as_attachment=True,
-                download_name=filename.replace('.xml.bzip2', '.html')
+                download_name=filename.replace('.xml.bzip2', '.html'),
+                data=html_data
             )
 
         except subprocess.CalledProcessError as e:
