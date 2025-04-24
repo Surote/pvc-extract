@@ -52,7 +52,22 @@
         </li>
     {% endfor %}
     </ul>
-
+    <ul>
+        {% for file in files %}
+            <li>
+                {% if file.is_dir %}
+                    <span class="folder">📁</span>
+                    <a href="{{ url_for('index', subpath=file.path) }}">{{ file.name }}/</a>
+                {% else %}
+                    <span>📄</span>
+                    <a href="{{ url_for('download_file', filepath=file.path) }}">{{ file.name }}</a>
+                    <form action="{{ url_for('convert_to_html', filepath=file.path) }}" method="post" style="display:inline;">
+                        <input type="submit" value="Convert">
+                    </form>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
     <form action="{{ url_for('logout') }}" method="post">
         <input type="submit" value="Logout">
     </form>

@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory, send_file, render_template, redirect, url_for, flash, session
+from flask import Flask, request, send_from_directory, render_template, redirect, url_for, flash, session, jsonify
 from flask_bcrypt import Bcrypt
 from functools import wraps
 import os
@@ -78,33 +78,6 @@ def upload_file():
 def download_file(filepath):
     directory = os.path.dirname(filepath)
     filename = os.path.basename(filepath)
-    full_path = os.path.join(app.config['UPLOAD_FOLDER'], directory, filename)
-
-    if filename.endswith('.xml.bzip2'):
-        import tempfile
-        try:
-            with tempfile.NamedTemporaryFile(suffix='.html', delete=False) as temp_html:
-                html_path = temp_html.name
-
-            subprocess.run([
-                'oscap', 'xccdf', 'generate', 'report',
-                full_path,
-                html_path
-            ], check=True)
-
-            return send_file(
-                html_path,
-                as_attachment=True,
-                download_name=filename.replace('.xml.bzip2', '.html')
-            )
-
-        except subprocess.CalledProcessError as e:
-            flash(f"Error converting file: {str(e)}")
-            return redirect(url_for('index'))
-        except Exception as e:
-            flash(f"Unexpected error: {str(e)}")
-            return redirect(url_for('index'))
-
     return send_from_directory(
         os.path.join(app.config['UPLOAD_FOLDER'], directory),
         filename,
@@ -128,6 +101,35 @@ def logout():
     session.pop('logged_in', None)
     flash('Logged out successfully')
     return redirect(url_for('login'))
+
+@app.route('/delete/<path:filepath>', methods=['POST'])
+@login_required
+def delete_file(filepath):
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filepath)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        flash("File deleted successfully")
+    else:
+        flash("File not found")
+    directory = os.path.dirname(filepath)
+    return redirect(url_for('index', subpath=directory))
+
+@app.route('/convert/<path:filepath>', methods=['POST'])
+@login_required
+def convert_to_html(filepath):
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filepath)
+    if os.path.exists(file_path):
+        html_file = f"{file_path}.html"
+        try:
+            subprocess.run(['oscap', 'xccdf', 'generate', 'report', file_path],
+                           check=True, stdout=open(html_file, 'w'))
+            flash("File converted successfully")
+        except subprocess.CalledProcessError:
+            flash("Error in converting the file")
+    else:
+        flash("File not found")
+    directory = os.path.dirname(filepath)
+    return redirect(url_for('index', subpath=directory))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5123)
