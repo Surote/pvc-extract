@@ -86,8 +86,8 @@ def download_file(filepath):
 
             subprocess.run([
                 'oscap', 'xccdf', 'generate', 'report',
-                html_path,
-                full_path
+                full_path,
+                html_path
             ], check=True)
 
             return_value = send_file(
