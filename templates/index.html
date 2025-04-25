@@ -45,9 +45,11 @@
             {% if file.is_dir %}
                 <span class="folder">📁</span>
                 <a href="{{ url_for('index', subpath=file.path) }}">{{ file.name }}/</a>
+                <span class="file-date">{{ file.created_date }}</span>
             {% else %}
                 <span>📄</span>
                 <a href="{{ url_for('download_file', filepath=file.path) }}">{{ file.name }}</a>
+                <span class="file-date">{{ file.created_date }}</span>
             {% endif %}
             <form action="{{ url_for('delete_file', filepath=file.path) }}" method="post" style="display:inline;">
                 <input type="submit" value="Delete">
