@@ -1,4 +1,5 @@
 from flask import Flask, request, send_from_directory, render_template, redirect, url_for, flash, session, jsonify
+from flask import Flask, request, send_from_directory, render_template, redirect, url_for, flash, session
 from flask_bcrypt import Bcrypt
 from functools import wraps
 import os
@@ -35,13 +36,13 @@ def index(subpath=''):
         full_path = os.path.join(current_path, item)
         is_dir = os.path.isdir(full_path)
         rel_path = os.path.join(subpath, item) if subpath else item
-        create_date = os.path.getctime(full_path) 
-        formatted_date = datetime.fromtimestamp(create_date).strftime('%d/%m/%y:%H:%M')
+        modified_date = os.path.getmtime(full_path)
+        formatted_date = datetime.fromtimestamp(modified_date).strftime('%d/%m/%y:%H:%M')
         files.append({
             'name': item,
             'is_dir': is_dir,
             'path': rel_path,
-            'created_date': formatted_date
+            'modified_date': formatted_date
         })
 
     breadcrumbs = []
