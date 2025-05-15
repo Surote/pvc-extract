@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: py-upload-download-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: py-upload-download-app
+  template:
+    metadata:
+      labels:
+        app: py-upload-download-app
+    spec:
+      containers:
+      - name: py-upload-download-app
+        image: quay.io/rh_ee_swongpai/py-upload-download:b7ac2366c4964a611f02aee37afe1b1c19417192
+        ports:
+        - containerPort: 5123
+        env:
+        - name: UPLOAD_FOLDER
+          value: "/app/demo-data"
+        - name: SAVEPASS
+          value: "YOURPASSWORD"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+        volumeMounts:
+        - mountPath: /app/compliance/ocp
+          name: data-volume
+        - mountPath: /app/compliance/worker
+          name: worker-volume
+        - mountPath: /app/compliance/master
+          name: master-volume
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: ocp4-cis
+      - name: worker-volume
+        persistentVolumeClaim:
+          claimName: ocp4-cis-node-worker
+      - name: master-volume
+        persistentVolumeClaim:
+          claimName: ocp4-cis-node-master

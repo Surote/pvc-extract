@@ -21,13 +21,15 @@ spec:
         - name: UPLOAD_FOLDER
           value: "/app/demo-data"
         - name: SAVEPASS
-          value: "YOURPASSWORD"
+          value: "replace-me-with-password-or-delete-me"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
         volumeMounts:
-        - name: data-volume
-          mountPath: /app/demo-data
+        - mountPath: /app/compliance/ocp
+          name: data-volume
       volumes:
       - name: data-volume
         persistentVolumeClaim:
-          claimName: data-pvc
-      imagePullSecrets:
-      - name: quay-sec
+          claimName: replac-me-pvc-name
