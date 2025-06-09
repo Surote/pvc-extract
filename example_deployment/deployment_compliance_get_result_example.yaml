@@ -33,6 +33,9 @@ spec:
           name: worker-volume
         - mountPath: /app/compliance/master
           name: master-volume
+        # add more for who have MCP for infra and another.
+        # - mountPath: /app/compliance/infra        
+        #   name: infra-volume
       volumes:
       - name: data-volume
         persistentVolumeClaim:
@@ -43,3 +46,4 @@ spec:
       - name: master-volume
         persistentVolumeClaim:
           claimName: ocp4-cis-node-master
+      # add more for who have MCP for infra and another.
