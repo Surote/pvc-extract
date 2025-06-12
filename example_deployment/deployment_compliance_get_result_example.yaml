@@ -19,7 +19,7 @@ spec:
         - containerPort: 5123
         env:
         - name: UPLOAD_FOLDER
-          value: "/app/demo-data"
+          value: "/app/compliance"
         - name: SAVEPASS
           value: "YOURPASSWORD"
         resources:
