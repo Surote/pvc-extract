@@ -8,6 +8,8 @@ USER root
 RUN yum install -y openscap-scanner \
     && yum clean all
 # Set the working directory in the container
+USER 1001
+
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
