@@ -19,7 +19,7 @@ spec:
         - containerPort: 5123
         env:
         - name: UPLOAD_FOLDER
-          value: "/app/demo-data"
+          value: "/out"
         - name: SAVEPASS
           value: "replace-me-with-password-or-delete-me"
         resources:
@@ -27,7 +27,7 @@ spec:
             cpu: "1"
             memory: "1Gi"
         volumeMounts:
-        - mountPath: /app/compliance/ocp
+        - mountPath: /out
           name: data-volume
       volumes:
       - name: data-volume

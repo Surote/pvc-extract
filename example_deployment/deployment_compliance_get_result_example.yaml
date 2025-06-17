@@ -19,7 +19,7 @@ spec:
         - containerPort: 5123
         env:
         - name: UPLOAD_FOLDER
-          value: "/app/compliance"
+          value: "/out"
         - name: SAVEPASS
           value: "YOURPASSWORD"
         resources:
@@ -27,14 +27,14 @@ spec:
             cpu: "1"
             memory: "1Gi"
         volumeMounts:
-        - mountPath: /app/compliance/ocp
+        - mountPath: /out/compliance/ocp
           name: data-volume
-        - mountPath: /app/compliance/worker
+        - mountPath: /out/compliance/worker
           name: worker-volume
-        - mountPath: /app/compliance/master
+        - mountPath: /out/compliance/master
           name: master-volume
         # add more for who have MCP for infra and another.
-        # - mountPath: /app/compliance/infra        
+        # - mountPath: /out/compliance/infra        
         #   name: infra-volume
       volumes:
       - name: data-volume
