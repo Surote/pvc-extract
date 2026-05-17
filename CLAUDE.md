@@ -31,6 +31,7 @@ Single-file Flask app (`app.py`) — all routes, auth, and file operations in on
 - **Auth**: password-only login via `SAVEPASS` env var, bcrypt-hashed comparison, Flask session-based
 - **File storage**: serves from `UPLOAD_FOLDER` env var (default: `./data`), supports nested directory browsing
 - **XCCDF conversion**: `.bzip2` files get a "Convert" button that shells out to `oscap xccdf generate report` (requires `openscap-scanner` installed — handled in Dockerfile via `yum`)
+- **Upload limit**: 100MB max via `MAX_CONTENT_LENGTH`
 - **Templates**: `templates/index.html` (file browser) and `templates/login.html` (login form), plain HTML with Jinja2
 
 ## Environment Variables
@@ -39,6 +40,7 @@ Single-file Flask app (`app.py`) — all routes, auth, and file operations in on
 |----------|---------|---------|
 | `SAVEPASS` | Login password (required) | None |
 | `UPLOAD_FOLDER` | Root directory to browse/upload | `data` |
+| `SECRET_KEY` | Flask session signing key | Random bytes (sessions lost on restart) |
 
 ## CI/CD
 

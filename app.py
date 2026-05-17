@@ -15,6 +15,7 @@ if not SAVE_PASS:
     print("Error: SAVEPASS environment variable is required", file=sys.stderr)
     sys.exit(1)
 PASS_HASH = bcrypt.generate_password_hash(SAVE_PASS)
+del SAVE_PASS
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
 app.secret_key = os.getenv('SECRET_KEY', os.urandom(24))
@@ -127,11 +128,11 @@ def logout():
 @login_required
 def delete_file(filepath):
     file_path = safe_path(app.config['UPLOAD_FOLDER'], filepath)
-    if os.path.exists(file_path):
+    if os.path.isfile(file_path):
         os.remove(file_path)
         flash("File deleted successfully")
     else:
-        flash("File not found")
+        flash("File not found or is a directory")
     directory = os.path.dirname(filepath)
     return redirect(url_for('index', subpath=directory))
 
