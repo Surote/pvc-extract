@@ -51,7 +51,7 @@ def login_required(f):
 def index(subpath=''):
     current_path = safe_path(app.config['UPLOAD_FOLDER'], subpath)
     if not os.path.exists(current_path):
-        flash("Directory not found")
+        flash("Directory not found", "error")
         return redirect(url_for('index'))
     
     files = []
@@ -91,18 +91,18 @@ def upload_file():
     current_path = request.form.get('current_path', '')
 
     if 'file' not in request.files:
-        flash("No file part")
+        flash("No file part", "error")
         return redirect(url_for('index', subpath=current_path))
 
     file = request.files['file']
     if file.filename == '':
-        flash("No selected file")
+        flash("No selected file", "error")
         return redirect(url_for('index', subpath=current_path))
 
     safe_dir = safe_path(app.config['UPLOAD_FOLDER'], current_path)
     filename = secure_filename(file.filename)
     if not filename:
-        flash("Invalid filename")
+        flash("Invalid filename", "error")
         return redirect(url_for('index', subpath=current_path))
     upload_path = os.path.join(safe_dir, filename)
     os.makedirs(os.path.dirname(upload_path), exist_ok=True)
@@ -128,7 +128,7 @@ def login():
             session['logged_in'] = True
             return redirect(url_for('index'))
         else:
-            flash('Invalid credentials')
+            flash('Invalid credentials', 'error')
     return render_template('login.html')
 
 @app.route('/logout', methods=['POST'])
@@ -146,7 +146,7 @@ def delete_file(filepath):
         os.remove(file_path)
         flash("File deleted successfully")
     else:
-        flash("File not found or is a directory")
+        flash("File not found or is a directory", "error")
     directory = os.path.dirname(filepath)
     return redirect(url_for('index', subpath=directory))
 
@@ -162,9 +162,9 @@ def convert_to_html(filepath):
                                check=True, stdout=f)
             flash("File converted successfully")
         except subprocess.CalledProcessError:
-            flash("Error in converting the file")
+            flash("Error in converting the file", "error")
     else:
-        flash("File not found")
+        flash("File not found", "error")
     directory = os.path.dirname(filepath)
     return redirect(url_for('index', subpath=directory))
 

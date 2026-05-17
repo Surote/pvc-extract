@@ -38,10 +38,10 @@
     }
     td {
         padding: 8px 10px;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border);
         vertical-align: middle;
     }
-    tr:hover td { background: #fafafa; }
+    tr:hover td { background: var(--bg); }
     .fname a {
         color: var(--text);
         text-decoration: none;
@@ -78,11 +78,11 @@
     </form>
 </div>
 <div class="container">
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <ul class="flash-messages">
-        {% for message in messages %}
-          <li class="{% if 'error' in message|lower or 'not found' in message|lower or 'Invalid' in message %}flash-error{% else %}flash-success{% endif %}">{{ message }}</li>
+        {% for category, message in messages %}
+          <li class="{% if category == 'error' %}flash-error{% else %}flash-success{% endif %}">{{ message }}</li>
         {% endfor %}
         </ul>
       {% endif %}
@@ -100,7 +100,8 @@
         <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
             <input type="hidden" name="current_path" value="{{ current_path }}">
             <div class="upload-row">
-                <input type="file" name="file">
+                <label for="file-input" style="display:none;">Choose file</label>
+                <input type="file" name="file" id="file-input">
                 <button type="submit" class="btn btn-primary btn-sm">Upload</button>
             </div>
         </form>
@@ -136,7 +137,7 @@
                             {% if not file.is_dir %}
                                 <a href="{{ url_for('download_file', filepath=file.path) }}" class="btn btn-sm">Download</a>
                                 <form action="{{ url_for('delete_file', filepath=file.path) }}" method="post">
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete {{ file.name }}?')">Delete</button>
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete ' + {{ file.name|tojson }} + '?')">Delete</button>
                                 </form>
                                 {% if file.name.endswith('.bzip2') %}
                                 <form action="{{ url_for('convert_to_html', filepath=file.path) }}" method="post">
