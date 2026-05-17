@@ -1,26 +1,60 @@
-<!-- templates/login.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-</head>
-<body>
-    <h2>Login</h2>
-    <form method="POST" action="{{ url_for('login') }}">
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <button type="submit">Login</button>
-    </form>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul>
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Login - File Manager{% endblock %}
+{% block head %}
+<style>
+    .login-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    .login-card {
+        width: 100%;
+        max-width: 360px;
+    }
+    .login-card h2 {
+        margin: 0 0 20px 0;
+        font-size: 20px;
+        text-align: center;
+    }
+    .login-card .form-group {
+        margin-bottom: 16px;
+    }
+    .login-card label {
+        display: block;
+        margin-bottom: 6px;
+    }
+    .login-card input[type="password"] {
+        width: 100%;
+    }
+    .login-card .btn-primary {
+        width: 100%;
+        padding: 10px;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+{% block body %}
+<div class="login-wrapper">
+    <div class="card login-card">
+        <h2>File Manager</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flash-messages">
+            {% for category, message in messages %}
+              <li class="{% if category == 'error' %}flash-error{% else %}flash-success{% endif %}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter password">
+            </div>
+            <button type="submit" class="btn btn-primary">Sign in</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

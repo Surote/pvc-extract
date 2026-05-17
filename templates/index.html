@@ -1,69 +1,159 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Manager</title>
-    <style>
-        .folder { font-weight: bold; }
-        .breadcrumb { margin-bottom: 20px; }
-        .breadcrumb a { margin: 0 5px; }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block head %}
+<style>
+    .breadcrumb {
+        margin-bottom: 16px;
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+    .breadcrumb a {
+        color: var(--primary);
+        text-decoration: none;
+    }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb .sep { margin: 0 4px; color: var(--text-muted); }
+    .upload-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th {
+        text-align: left;
+        padding: 8px 10px;
+        border-bottom: 2px solid var(--border);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        white-space: nowrap;
+    }
+    td {
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+    tr:hover td { background: var(--bg); }
+    .fname a {
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .fname a:hover { color: var(--primary); }
+    .fname .icon {
+        display: inline-block;
+        width: 20px;
+        text-align: center;
+        margin-right: 4px;
+    }
+    .fname .folder { color: var(--primary); }
+    .fmeta {
+        color: var(--text-muted);
+        font-size: 13px;
+        white-space: nowrap;
+    }
+    .actions { white-space: nowrap; }
+    .actions form { display: inline; }
+    .actions .btn-sm { margin-left: 4px; }
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}
+{% block body %}
+<div class="header">
     <h1>File Manager</h1>
-
-    <!-- Breadcrumb navigation -->
-    <div class="breadcrumb">
-        <a href="{{ url_for('index') }}">Home</a> /
-        {% for crumb in breadcrumbs %}
-            <a href="{{ url_for('index', subpath=crumb.path) }}">{{ crumb.name }}</a> /
-        {% endfor %}
-    </div>
-
-    {% with messages = get_flashed_messages() %}
+    <form action="{{ url_for('logout') }}" method="post" style="margin:0;">
+        <button type="submit" class="btn btn-sm">Logout</button>
+    </form>
+</div>
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <ul class="messages">
-        {% for message in messages %}
-          <li>{{ message }}</li>
+        <ul class="flash-messages">
+        {% for category, message in messages %}
+          <li class="{% if category == 'error' %}flash-error{% else %}flash-success{% endif %}">{{ message }}</li>
         {% endfor %}
         </ul>
       {% endif %}
     {% endwith %}
 
-    <h2>Upload a File</h2>
-    <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
-        <input type="hidden" name="current_path" value="{{ current_path }}">
-        <input type="file" name="file">
-        <input type="submit" value="Upload">
-    </form>
+    <div class="breadcrumb">
+        <a href="{{ url_for('index') }}">Home</a>
+        {% for crumb in breadcrumbs %}
+            <span class="sep">/</span>
+            <a href="{{ url_for('index', subpath=crumb.path) }}">{{ crumb.name }}</a>
+        {% endfor %}
+    </div>
 
-    <h2>Files and Folders</h2>
-    <ul>
-    {% for file in files %}
-        <li>
-            {% if file.is_dir %}
-                <span class="folder">📁</span>
-                <a href="{{ url_for('index', subpath=file.path) }}">{{ file.name }}/</a>
-                <span class="file-date">{{ file.modified_date }}</span>
-            {% else %}
-                <span>📄</span>
-                <a href="{{ url_for('download_file', filepath=file.path) }}">{{ file.name }}</a>
-                <span class="file-date">{{ file.modified_date }}</span>
-            {% endif %}
-            <form action="{{ url_for('delete_file', filepath=file.path) }}" method="post" style="display:inline;">
-                <input type="submit" value="Delete">
-            </form>
-            {% if not file.is_dir and file.name.endswith('.bzip2') %}
-                <form action="{{ url_for('convert_to_html', filepath=file.path) }}" method="post" style="display:inline;">
-                    <input type="submit" value="Convert">
-                </form>
-            {% endif %}
-        </li>
-    {% endfor %}
-    </ul>
-    <form action="{{ url_for('logout') }}" method="post">
-        <input type="submit" value="Logout">
-    </form>
-</body>
-</html>
+    <div class="card">
+        <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="current_path" value="{{ current_path }}">
+            <div class="upload-row">
+                <label for="file-input" style="display:none;">Choose file</label>
+                <input type="file" name="file" id="file-input">
+                <button type="submit" class="btn btn-primary btn-sm">Upload</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card" style="padding: 0;">
+        {% if files %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Modified</th>
+                        <th>Size</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for file in files %}
+                    <tr>
+                        <td class="fname">
+                            {% if file.is_dir %}
+                                <span class="icon folder">&#9654;</span>
+                                <a href="{{ url_for('index', subpath=file.path) }}">{{ file.name }}/</a>
+                            {% else %}
+                                <span class="icon">&#9675;</span>
+                                <a href="{{ url_for('download_file', filepath=file.path) }}">{{ file.name }}</a>
+                            {% endif %}
+                        </td>
+                        <td class="fmeta">{{ file.modified_date }}</td>
+                        <td class="fmeta">{% if file.is_dir %}-{% else %}{{ file.size|filesizeformat }}{% endif %}</td>
+                        <td class="actions">
+                            {% if not file.is_dir %}
+                                <a href="{{ url_for('download_file', filepath=file.path) }}" class="btn btn-sm">Download</a>
+                                <form action="{{ url_for('delete_file', filepath=file.path) }}" method="post">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete ' + {{ file.name|tojson }} + '?')">Delete</button>
+                                </form>
+                                {% if file.name.endswith('.bzip2') %}
+                                <form action="{{ url_for('convert_to_html', filepath=file.path) }}" method="post">
+                                    <button type="submit" class="btn btn-sm">Convert</button>
+                                </form>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">No files or folders here.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
