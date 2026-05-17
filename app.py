@@ -21,6 +21,16 @@ app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
 app.secret_key = os.getenv('SECRET_KEY', os.urandom(24))
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+@app.template_filter('filesizeformat')
+def filesizeformat_filter(value):
+    if value is None:
+        return '-'
+    for unit in ['B', 'KB', 'MB', 'GB']:
+        if abs(value) < 1024:
+            return f"{value:.1f} {unit}"
+        value /= 1024
+    return f"{value:.1f} TB"
+
 def safe_path(base, user_path):
     full = os.path.realpath(os.path.join(base, user_path))
     if not full.startswith(os.path.realpath(base) + os.sep) and full != os.path.realpath(base):
@@ -51,12 +61,16 @@ def index(subpath=''):
         rel_path = os.path.join(subpath, item) if subpath else item
         modified_date = os.path.getmtime(full_path)
         formatted_date = datetime.fromtimestamp(modified_date).strftime('%d/%m/%y:%H:%M')
+        size = os.path.getsize(full_path) if not is_dir else None
         files.append({
             'name': item,
             'is_dir': is_dir,
             'path': rel_path,
-            'modified_date': formatted_date
+            'modified_date': formatted_date,
+            'size': size
         })
+
+    files.sort(key=lambda x: (not x['is_dir'], x['name'].lower()))
 
     breadcrumbs = []
     if subpath:
